@@ -1,0 +1,7 @@
+# robots.txt for https://iskolelk.com
+
+User-agent: *
+Allow: /
+
+# Point to your sitemap(s)
+Sitemap: https://iskolelk.com/sitemap.xml

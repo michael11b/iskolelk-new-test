@@ -1,0 +1,164 @@
+{
+    "AL_STREAMS": [
+      { "key": "science", "label": "Science" },
+      { "key": "commerce", "label": "Commerce" },
+      { "key": "art", "label": "Art" },
+      { "key": "technology", "label": "Technology" }
+    ],
+  
+    "AL_SUBJECTS_BY_STREAM": {
+      "science": [
+        { "key": "agriculture", "label": "Agriculture" },
+        { "key": "agro-technology", "label": "Agro Technology" },
+        { "key": "chemistry", "label": "Chemistry" },
+        { "key": "combined-maths", "label": "Combined Mathematics" },
+        { "key": "physics", "label": "Physics" },
+        { "key": "science-biology", "label": "Biology" }
+      ],
+      "commerce": [
+        { "key": "accounting", "label": "Accounting" },
+        { "key": "business-studies", "label": "Business Studies" },
+        { "key": "economics", "label": "Economics" }
+      ],
+      "art": [
+        { "key": "art", "label": "Art" },
+        { "key": "buddhism", "label": "Buddhism" },
+        { "key": "carnatic-music", "label": "Carnatic Music" },
+        { "key": "dancing", "label": "Dancing" },
+        { "key": "drama", "label": "Drama" },
+        { "key": "geography", "label": "Geography" },
+        { "key": "history", "label": "History" },
+        { "key": "logic", "label": "Logic" },
+        { "key": "media", "label": "Media Studies" },
+        { "key": "oriental-music", "label": "Oriental Music" },
+        { "key": "political-science", "label": "Political Science" },
+        { "key": "sinhala", "label": "Sinhala" },
+        { "key": "western-music", "label": "Western Music" }
+      ],
+      "technology": [
+        { "key": "bio-resource-technology", "label": "Bio Resource Technology" },
+        { "key": "biosystems-technology", "label": "Biosystems Technology" },
+        { "key": "civil-technology", "label": "Civil Technology" },
+        { "key": "engineering-technology", "label": "Engineering Technology" },
+        { "key": "information-and-communication-technology", "label": "ICT" },
+        { "key": "mechanical-technology", "label": "Mechanical Technology" },
+        { "key": "science-for-technology", "label": "Science for Technology" }
+      ]
+    },
+  
+    "OL_SUBJECTS": [
+      { "key": "agriculture", "label": "Agriculture" },
+      { "key": "arabic", "label": "Arabic" },
+      { "key": "art", "label": "Art" },
+      { "key": "arts-and-crafts", "label": "Arts & Crafts" },
+      { "key": "buddhism", "label": "Buddhism" },
+      { "key": "catholicism", "label": "Catholicism" },
+      { "key": "chinese", "label": "Chinese" },
+      { "key": "christianity", "label": "Christianity" },
+      { "key": "civic-education", "label": "Civic Education" },
+      { "key": "commerce", "label": "Commerce" },
+      { "key": "communication-and-media", "label": "Communication & Media" },
+      { "key": "dancing-bharatha", "label": "Bharatha Dancing" },
+      { "key": "dancing-oriental", "label": "Oriental Dancing" },
+      { "key": "design-construction-technology", "label": "Design & Construction Technology" },
+      { "key": "design-electrical-electronic-technology", "label": "Electrical & Electronic Technology" },
+      { "key": "design-mechanical-technology", "label": "Mechanical Technology" },
+      { "key": "drama", "label": "Drama" },
+      { "key": "english", "label": "English" },
+      { "key": "english-litriger", "label": "English Literature" },
+      { "key": "entrepreneurship", "label": "Entrepreneurship" },
+      { "key": "french", "label": "French" },
+      { "key": "geography", "label": "Geography" },
+      { "key": "german", "label": "German" },
+      { "key": "health", "label": "Health" },
+      { "key": "hindi", "label": "Hindi" },
+      { "key": "history", "label": "History" },
+      { "key": "home-economics", "label": "Home Economics" },
+      { "key": "information-and-communication-technology", "label": "ICT" },
+      { "key": "islam", "label": "Islam" },
+      { "key": "japan", "label": "Japanese" },
+      { "key": "korean", "label": "Korean" },
+      { "key": "mathematics", "label": "Mathematics" },
+      { "key": "music-carnatic", "label": "Carnatic Music" },
+      { "key": "music-oriental", "label": "Oriental Music" },
+      { "key": "pali", "label": "Pali" },
+      { "key": "russian", "label": "Russian" },
+      { "key": "saivanery", "label": "Saivanery" },
+      { "key": "sanskrit", "label": "Sanskrit" },
+      { "key": "science", "label": "Science" },
+      { "key": "second-language-sinhala", "label": "Second Language Sinhala" },
+      { "key": "second-language-tamil", "label": "Second Language Tamil" },
+      { "key": "sinhala", "label": "Sinhala" },
+      { "key": "sinhala-litriger", "label": "Sinhala Literature" },
+      { "key": "tamil-literary-appreciation", "label": "Tamil Literary Appreciation" },
+      { "key": "tamil-litriger", "label": "Tamil Literature" },
+      { "key": "western-music", "label": "Western Music" }
+    ],
+  
+    "AL_LANGUAGES": [
+      { "key": "sinhala", "label": "Sinhala" },
+      { "key": "english", "label": "English" },
+      { "key": "tamil", "label": "Tamil" }
+    ],
+  
+    "OL_LANGUAGES": [
+      { "key": "sinhala", "label": "Sinhala" },
+      { "key": "english", "label": "English" },
+      { "key": "tamil", "label": "Tamil" }
+    ],
+  
+    "SCHOLARSHIP_LANGUAGES": [
+      { "key": "sinhala", "label": "Sinhala" },
+      { "key": "english", "label": "English" },
+      { "key": "tamil", "label": "Tamil" }
+    ],
+  
+    "EXAM_YEARS": [
+      { "year": 2024, "sinhala": true, "tamil": true, "english": true },
+      { "year": 2023, "sinhala": true, "tamil": true, "english": true },
+      { "year": 2022, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2021, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2020, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2019, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2018, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2017, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2016, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2015, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2014, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2013, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2012, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2011, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2010, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2009, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2008, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2007, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2006, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2005, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2004, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2003, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2002, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2001, "sinhala": true, "tamil": true, "english": true },
+        { "year": 2000, "sinhala": true, "tamil": true, "english": true }
+    ],
+  
+    "SCHOLARSHIP_YEARS": [
+      2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016,
+      2015, 2014, 2013, 2012, 2011, 2010, 2009, 2008, 2007,
+      2006, 2005, 2004, 2003, 2002, 2001, 2000
+    ],
+  
+    "GRADES": [
+      "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6",
+      "Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"
+    ],
+  
+    "RESOURCE_CATEGORIES": [
+      { "key": "al", "label": "A/L" },
+      { "key": "ol", "label": "O/L" },
+      { "key": "scholarship", "label": "Scholarship" },
+      { "key": "textbook", "label": "Textbook" },
+      { "key": "syllabus", "label": "Syllabus" },
+      { "key": "teachers-guide", "label": "Teachers Guide" }
+    ]
+  }
+  

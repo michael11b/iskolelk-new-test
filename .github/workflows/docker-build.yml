@@ -1,0 +1,1473 @@
+# # # name: Build and Push Docker Images
+
+# # # on:
+# # #   push:
+# # #     branches:
+# # #       - main  # or 'master', whichever is your default
+
+# # # env:
+# # #   DOCKER_REPO: your-dockerhub-username
+
+# # # jobs:
+# # #   build-and-push:
+# # #     runs-on: ubuntu-latest
+
+# # #     steps:
+# # #       - name: Checkout repo
+# # #         uses: actions/checkout@v3
+
+# # #       - name: Log in to Docker Hub
+# # #         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+# # #       # ---------- FRONTEND ----------
+# # #       - name: Build frontend image
+# # #         run: |
+# # #           docker build \
+# # #             --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }} \
+# # #             --build-arg NEXT_PUBLIC_API_BASE_URL_FILES=${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }} \
+# # #             --build-arg NEXT_PUBLIC_SITE_URL=${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }} \
+# # #             -t $DOCKER_REPO/frontend:latest ./frontend
+
+# # #       - name: Push frontend image
+# # #         run: docker push $DOCKER_REPO/frontend:latest
+
+# # #       # ---------- BACKEND ----------
+# # #       - name: Build backend image
+# # #         run: docker build -t $DOCKER_REPO/backend:latest ./backend
+
+# # #       - name: Push backend image
+# # #         run: docker push $DOCKER_REPO/backend:latest
+
+
+
+
+
+
+
+# # # name: Build and Push Docker Images
+
+# # # on:
+# # #   push:
+# # #     branches: [main]
+
+# # # env:
+# # #   DOCKER_REPO: "${{ secrets.DOCKER_USERNAME }}"
+
+# # # jobs:
+# # #   build-and-push:
+# # #     runs-on: ubuntu-latest
+
+# # #     steps:
+# # #       - uses: actions/checkout@v3
+
+# # #       - name: Set up Docker Buildx
+# # #         uses: docker/setup-buildx-action@v3
+
+# # #       - name: Docker login
+# # #         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+# # #       - name: Debug environment variables
+# # #         run: |
+# # #           echo "NEXT_PUBLIC_API_BASE_URL is ${NEXT_PUBLIC_API_BASE_URL:+set}"
+# # #           echo "NEXT_PUBLIC_API_BASE_URL_FILES is ${NEXT_PUBLIC_API_BASE_URL_FILES:+set}"
+# # #           echo "NEXT_PUBLIC_SITE_URL is ${NEXT_PUBLIC_SITE_URL:+set}"
+# # #         env:
+# # #           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }}
+# # #           NEXT_PUBLIC_API_BASE_URL_FILES: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }}
+# # #           NEXT_PUBLIC_SITE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }}
+# # #       # FRONTEND
+# # #       - name: Build & push frontend
+# # #         run: |
+# # #           docker buildx build \
+# # #             --platform linux/amd64 \
+# # #             --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }} \
+# # #             --build-arg NEXT_PUBLIC_API_BASE_URL_FILES=${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }} \
+# # #             --build-arg NEXT_PUBLIC_SITE_URL=${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }} \
+# # #             -t $DOCKER_REPO/frontend:latest \
+# # #             --push ./frontend
+
+# # #       # BACKEND
+# # #       - name: Build & push backend
+# # #         run: |
+# # #           docker buildx build \
+# # #             --platform linux/amd64 \
+# # #             -t $DOCKER_REPO/backend:latest \
+# # #             --push ./backend
+
+
+
+
+
+
+# # # name: CI/CD Pipeline for Production
+
+# # # on:
+# # #   push:
+# # #     branches:
+# # #       - main
+
+# # # jobs:
+# # #   build-and-push-images:
+# # #     runs-on: ubuntu-latest
+
+# # #     env:
+# # #       DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+# # #       NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+# # #       NEXT_PUBLIC_API_BASE_URL_FILES: ${{ secrets.NEXT_PUBLIC_API_BASE_URL_FILES }}
+# # #       NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+
+# # #     steps:
+# # #       - name: Checkout code
+# # #         uses: actions/checkout@v3
+
+# # #       - name: Set up Docker Buildx
+# # #         uses: docker/setup-buildx-action@v3
+
+# # #       - name: Log in to Docker Hub
+# # #         uses: docker/login-action@v3
+# # #         with:
+# # #           username: ${{ secrets.DOCKER_USERNAME }}
+# # #           password: ${{ secrets.DOCKER_PASSWORD }}
+
+# # #       - name: Build and push backend image
+# # #         working-directory: backend
+# # #         run: |
+# # #           docker buildx build \
+# # #             --platform linux/amd64 \
+# # #             -t $DOCKER_REPO/backend:latest \
+# # #             --push .
+
+# # #       - name: Build and push frontend image
+# # #         working-directory: frontend
+# # #         run: |
+# # #           docker buildx build \
+# # #             --platform linux/amd64 \
+# # #             --build-arg NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL \
+# # #             --build-arg NEXT_PUBLIC_API_BASE_URL_FILES=$NEXT_PUBLIC_API_BASE_URL_FILES \
+# # #             --build-arg NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL \
+# # #             -t $DOCKER_REPO/frontend:latest \
+# # #             --push .
+
+
+
+
+
+
+
+
+
+
+
+# # # ==========================================================
+
+
+
+
+
+# # # name: CI/CD Pipeline
+
+# # # on:
+# # #   push:
+# # #     branches:
+# # #       - main
+
+# # # jobs:
+# # #   build-and-push:
+# # #     runs-on: ubuntu-latest
+
+# # #     env:
+# # #       DOCKER_REPO: ${{ secrets.DOCKER_USERNAME }}
+
+# # #     steps:
+# # #       - name: Checkout code
+# # #         uses: actions/checkout@v2
+
+# # #       - name: Set up Docker Buildx
+# # #         uses: docker/setup-buildx-action@v3
+
+# # #       - name: Login to Docker Hub
+# # #         uses: docker/login-action@v3
+# # #         with:
+# # #           username: ${{ secrets.DOCKER_USERNAME }}
+# # #           password: ${{ secrets.DOCKER_PASSWORD }}
+
+# # #       - name: Build and push backend image
+# # #         working-directory: backend
+# # #         run: |
+# # #           docker buildx build \
+# # #             --platform linux/amd64 \
+# # #             -t $DOCKER_REPO/backend:latest \
+# # #             --push .
+
+# # #       - name: 🔍 Debug Force print full secrets (TEMPORARY ONLY)
+# # #         run: |
+# # #           echo "API_URL=$(echo $NEXT_PUBLIC_API_BASE_URL | sed 's/./& /g')"
+# # #           echo "FILES_URL=$(echo $NEXT_PUBLIC_API_BASE_URL_FILES | sed 's/./& /g')"
+# # #           echo "SITE_URL=$(echo $NEXT_PUBLIC_SITE_URL | sed 's/./& /g')"
+# # #         env:
+# # #           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }}
+# # #           NEXT_PUBLIC_API_BASE_URL_FILES: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }}
+# # #           NEXT_PUBLIC_SITE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }}
+
+# # #       - name: Build and push frontend image
+# # #         working-directory: frontend
+# # #         run: |
+# # #           docker buildx build \
+# # #             --platform linux/amd64 \
+# # #             --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }} \
+# # #             --build-arg NEXT_PUBLIC_API_BASE_URL_FILES=${{ secrets.NEXT_PUBLIC_API_BASE_URL_FILES }} \
+# # #             --build-arg NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }} \
+# # #             -t $DOCKER_REPO/frontend:latest \
+# # #             --push .
+
+
+
+
+
+
+
+
+
+# # # ====================================================================
+
+
+
+
+
+# # # name: CI/CD Pipeline
+
+# # # on:
+# # #   push:
+# # #     branches:
+# # #       - main
+
+# # # jobs:
+# # #   build-deploy:
+# # #     runs-on: ubuntu-latest
+
+# # #     env:
+# # #       DOCKER_REPO: ${{ secrets.DOCKER_USERNAME }}
+
+# # #     steps:
+# # #       - name: Checkout code
+# # #         uses: actions/checkout@v3
+
+# # #       - name: Set up Docker Buildx
+# # #         uses: docker/setup-buildx-action@v3
+
+# # #       - name: Login to Docker Hub
+# # #         uses: docker/login-action@v3
+# # #         with:
+# # #           username: ${{ secrets.DOCKER_USERNAME }}
+# # #           password: ${{ secrets.DOCKER_PASSWORD }}
+
+# # #       - name: Build and push backend image
+# # #         working-directory: backend
+# # #         run: |
+# # #           docker buildx build \
+# # #             --platform linux/amd64 \
+# # #             -t $DOCKER_REPO/backend:latest \
+# # #             --push .
+# # #       - name: 🔍 Debug Force print full secrets (TEMPORARY ONLY)
+# # #         run: |
+# # #           echo "API_URL=$(echo $NEXT_PUBLIC_API_BASE_URL | sed 's/./& /g')"
+# # #           echo "FILES_URL=$(echo $NEXT_PUBLIC_API_BASE_URL_FILES | sed 's/./& /g')"
+# # #           echo "SITE_URL=$(echo $NEXT_PUBLIC_SITE_URL | sed 's/./& /g')"
+# # #         env:
+# # #           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }}
+# # #           NEXT_PUBLIC_API_BASE_URL_FILES: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }}
+# # #           NEXT_PUBLIC_SITE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }}
+
+
+
+# # #       - name: Build and push frontend image
+# # #         working-directory: frontend
+# # #         run: |
+# # #           docker buildx build \
+# # #             --platform linux/amd64 \
+# # #             --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }} \
+# # #             --build-arg NEXT_PUBLIC_API_BASE_URL_FILES=${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }} \
+# # #             --build-arg NEXT_PUBLIC_SITE_URL=${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }} \
+# # #             -t $DOCKER_REPO/frontend:latest \
+# # #             --push .
+
+# #       # # ---------- KUBERNETES DEPLOYMENT BELOW ----------
+
+# #       # - name: Set up Kubeconfig
+# #       #   run: |
+# #       #     mkdir -p $HOME/.kube
+# #       #     echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+# #       #     chmod 600 $HOME/.kube/config
+
+# #       # - name: Create backend Kubernetes Secret manifest
+# #       #   run: |
+# #       #     cat <<EOF > k8s/backend-secret.yaml
+# #       #     apiVersion: v1
+# #       #     kind: Secret
+# #       #     metadata:
+# #       #       name: backend-secret
+# #       #     type: Opaque
+# #       #     stringData:
+# #       #       MONGO_URI: "${{ secrets.MONGO_URI }}"
+# #       #       SESSION_SECRET: "${{ secrets.SESSION_SECRET }}"
+# #       #       JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+# #       #       JWT_EXPIRES_IN: "${{ secrets.JWT_EXPIRES_IN }}"
+# #       #       JWT_COOKIE_EXPIRES_IN: "${{ secrets.JWT_COOKIE_EXPIRES_IN }}"
+# #       #       AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+# #       #       AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+# #       #       AWS_REGION: "${{ secrets.AWS_REGION }}"
+# #       #       AWS_BUCKET_NAME: "${{ secrets.AWS_BUCKET_NAME }}"
+# #       #     EOF
+
+# #       # - name: Deploy to Kubernetes
+# #       #   run: |
+# #       #     kubectl apply -f k8s/
+
+
+
+# # # combined------------------------------------
+
+
+
+
+
+
+# # name: CI/CD Pipeline
+
+# # on:
+# #   push:
+# #     branches:
+# #       - main
+
+# # jobs:
+# #   build-and-push:
+# #     runs-on: ubuntu-latest
+
+# #     env:
+# #       DOCKER_REPO: ${{ secrets.DOCKER_USERNAME }}
+
+# #     steps:
+# #       - name: Checkout code
+# #         uses: actions/checkout@v2
+
+# #       - name: Set up Docker Buildx
+# #         uses: docker/setup-buildx-action@v3
+
+# #       - name: Login to Docker Hub
+# #         uses: docker/login-action@v3
+# #         with:
+# #           username: ${{ secrets.DOCKER_USERNAME }}
+# #           password: ${{ secrets.DOCKER_PASSWORD }}
+
+# #       - name: Build and push backend image
+# #         working-directory: backend
+# #         run: |
+# #           docker buildx build \
+# #             --platform linux/amd64 \
+# #             -t $DOCKER_REPO/backend:latest \
+# #             --push .
+
+# #       - name: 🔍 Debug Force print full secrets (TEMPORARY ONLY)
+# #         run: |
+# #           echo "API_URL=$(echo $NEXT_PUBLIC_API_BASE_URL | sed 's/./& /g')"
+# #           echo "FILES_URL=$(echo $NEXT_PUBLIC_API_BASE_URL_FILES | sed 's/./& /g')"
+# #           echo "SITE_URL=$(echo $NEXT_PUBLIC_SITE_URL | sed 's/./& /g')"
+# #         env:
+# #           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }}
+# #           NEXT_PUBLIC_API_BASE_URL_FILES: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }}
+# #           NEXT_PUBLIC_SITE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }}
+
+# #       - name: Build and push frontend image
+# #         working-directory: frontend
+# #         run: |
+# #           docker buildx build \
+# #             --platform linux/amd64 \
+# #             --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }} \
+# #             --build-arg NEXT_PUBLIC_API_BASE_URL_FILES=${{ secrets.NEXT_PUBLIC_API_BASE_URL_FILES }} \
+# #             --build-arg NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }} \
+# #             -t $DOCKER_REPO/frontend:latest \
+# #             --push .
+
+# #       # # ---------- KUBERNETES DEPLOYMENT BELOW ----------
+
+# #       # - name: Set up Kubeconfig
+# #       #   run: |
+# #       #     mkdir -p $HOME/.kube
+# #       #     echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+# #       #     chmod 600 $HOME/.kube/config
+
+# #       # - name: Create backend Kubernetes Secret manifest
+# #       #   run: |
+# #       #     cat <<EOF > k8s/backend-secret.yaml
+# #       #     apiVersion: v1
+# #       #     kind: Secret
+# #       #     metadata:
+# #       #       name: backend-secret
+# #       #     type: Opaque
+# #       #     stringData:
+# #       #       MONGO_URI: "${{ secrets.MONGO_URI }}"
+# #       #       SESSION_SECRET: "${{ secrets.SESSION_SECRET }}"
+# #       #       JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+# #       #       JWT_EXPIRES_IN: "${{ secrets.JWT_EXPIRES_IN }}"
+# #       #       JWT_COOKIE_EXPIRES_IN: "${{ secrets.JWT_COOKIE_EXPIRES_IN }}"
+# #       #       AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+# #       #       AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+# #       #       AWS_REGION: "${{ secrets.AWS_REGION }}"
+# #       #       AWS_BUCKET_NAME: "${{ secrets.AWS_BUCKET_NAME }}"
+# #       #     EOF
+
+# #       # - name: Deploy to Kubernetes
+# #       #   run: |
+# #       #     kubectl apply -f k8s/
+
+
+# # # ---------- KUBERNETES DEPLOYMENT BELOW ----------
+
+# #       # - name: Install kubectl
+# #       #   run: |
+# #       #     sudo apt-get update && sudo apt-get install -y curl
+# #       #     curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+# #       #     chmod +x kubectl
+# #       #     sudo mv kubectl /usr/local/bin/kubectl
+
+# #       - name: Install kubectl
+# #         run: |
+# #           sudo apt-get update && sudo apt-get install -y curl
+# #           curl -LO "https://dl.k8s.io/release/v1.32.6/bin/linux/amd64/kubectl"
+# #           chmod +x kubectl
+# #           sudo mv kubectl /usr/local/bin/kubectl
+
+
+# #       # - name: Set up Kubeconfig
+# #       #   run: |
+# #       #     mkdir -p $HOME/.kube
+# #       #     echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+# #       #     chmod 600 $HOME/.kube/config
+
+# #       - name: Set up Kubeconfig
+# #         run: |
+# #           mkdir -p $HOME/.kube
+# #           echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+# #           chmod 600 $HOME/.kube/config
+
+
+# #       - name: Create backend Kubernetes Secret manifest
+# #         run: |
+# #           cat <<EOF > k8s/backend-secret.yaml
+# #           apiVersion: v1
+# #           kind: Secret
+# #           metadata:
+# #             name: backend-secret
+# #           type: Opaque
+# #           stringData:
+# #             MONGO_URI: "${{ secrets.MONGO_URI }}"
+# #             SESSION_SECRET: "${{ secrets.SESSION_SECRET }}"
+# #             JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+# #             JWT_EXPIRES_IN: "${{ secrets.JWT_EXPIRES_IN }}"
+# #             JWT_COOKIE_EXPIRES_IN: "${{ secrets.JWT_COOKIE_EXPIRES_IN }}"
+# #             AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+# #             AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+# #             AWS_REGION: "${{ secrets.AWS_REGION }}"
+# #             AWS_BUCKET_NAME: "${{ secrets.AWS_BUCKET_NAME }}"
+# #             PORT: "${{ secrets.PORT }}"
+# #           EOF
+
+# #       - name: Deploy to Kubernetes
+# #         run: |
+# #           kubectl apply -f k8s/
+
+
+
+
+
+
+
+
+
+
+
+# # # name: CI/CD Pipeline
+
+# # # on:
+# # #   push:
+# # #     branches:
+# # #       - main
+
+# # # jobs:
+# # #   build-and-push:
+# # #     runs-on: ubuntu-latest
+
+# # #     env:
+# # #       DOCKER_REPO: ${{ secrets.DOCKER_USERNAME }}
+
+# # #     steps:
+# # #       - name: Checkout code
+# # #         uses: actions/checkout@v2
+
+# # #       - name: Set up Docker Buildx
+# # #         uses: docker/setup-buildx-action@v3
+
+# # #       - name: Login to Docker Hub
+# # #         uses: docker/login-action@v3
+# # #         with:
+# # #           username: ${{ secrets.DOCKER_USERNAME }}
+# # #           password: ${{ secrets.DOCKER_PASSWORD }}
+
+# # #       - name: Build and push backend image
+# # #         working-directory: backend
+# # #         run: |
+# # #           docker buildx build \
+# # #             --platform linux/amd64 \
+# # #             -t $DOCKER_REPO/backend:latest \
+# # #             --push .
+
+# # #       - name: 🔍 Debug Force print full secrets (TEMPORARY ONLY)
+# # #         run: |
+# # #           echo "API_URL=$(echo $NEXT_PUBLIC_API_BASE_URL | sed 's/./& /g')"
+# # #           echo "FILES_URL=$(echo $NEXT_PUBLIC_API_BASE_URL_FILES | sed 's/./& /g')"
+# # #           echo "SITE_URL=$(echo $NEXT_PUBLIC_SITE_URL | sed 's/./& /g')"
+# # #         env:
+# # #           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }}
+# # #           NEXT_PUBLIC_API_BASE_URL_FILES: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }}
+# # #           NEXT_PUBLIC_SITE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }}
+
+# # #       - name: Build and push frontend image
+# # #         working-directory: frontend
+# # #         run: |
+# # #           docker buildx build \
+# # #             --platform linux/amd64 \
+# # #             --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }} \
+# # #             --build-arg NEXT_PUBLIC_API_BASE_URL_FILES=${{ secrets.NEXT_PUBLIC_API_BASE_URL_FILES }} \
+# # #             --build-arg NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }} \
+# # #             -t $DOCKER_REPO/frontend:latest \
+# # #             --push .
+
+# # #       - name: Install kubectl
+# # #         run: |
+# # #           sudo apt-get update && sudo apt-get install -y curl
+# # #           curl -LO "https://dl.k8s.io/release/v1.32.6/bin/linux/amd64/kubectl"
+# # #           chmod +x kubectl
+# # #           sudo mv kubectl /usr/local/bin/kubectl
+
+# # #       - name: Set up Kubeconfig
+# # #         run: |
+# # #           mkdir -p $HOME/.kube
+# # #           echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+# # #           chmod 600 $HOME/.kube/config
+
+
+# # #       - name: Create backend Kubernetes Secret manifest
+# # #         run: |
+# # #           cat <<EOF > k8s/backend-secret.yaml
+# # #           apiVersion: v1
+# # #           kind: Secret
+# # #           metadata:
+# # #             name: backend-secret
+# # #           type: Opaque
+# # #           stringData:
+# # #             MONGO_URI: "${{ secrets.MONGO_URI }}"
+# # #             SESSION_SECRET: "${{ secrets.SESSION_SECRET }}"
+# # #             JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+# # #             JWT_EXPIRES_IN: "${{ secrets.JWT_EXPIRES_IN }}"
+# # #             JWT_COOKIE_EXPIRES_IN: "${{ secrets.JWT_COOKIE_EXPIRES_IN }}"
+# # #             AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+# # #             AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+# # #             AWS_REGION: "${{ secrets.AWS_REGION }}"
+# # #             AWS_BUCKET_NAME: "${{ secrets.AWS_BUCKET_NAME }}"
+# # #             PORT: "${{ secrets.PORT }}"
+# # #           EOF
+
+# # #       - name: Deploy to Kubernetes
+# # #         run: |
+# # #           kubectl apply -f k8s/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# # name: Build and Push Docker Images
+
+# # on:
+# #   push:
+# #     branches:
+# #       - main  # or 'master', whichever is your default
+
+# # env:
+# #   DOCKER_REPO: your-dockerhub-username
+
+# # jobs:
+# #   build-and-push:
+# #     runs-on: ubuntu-latest
+
+# #     steps:
+# #       - name: Checkout repo
+# #         uses: actions/checkout@v3
+
+# #       - name: Log in to Docker Hub
+# #         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+# #       # ---------- FRONTEND ----------
+# #       - name: Build frontend image
+# #         run: |
+# #           docker build \
+# #             --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }} \
+# #             --build-arg NEXT_PUBLIC_API_BASE_URL_FILES=${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }} \
+# #             --build-arg NEXT_PUBLIC_SITE_URL=${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }} \
+# #             -t $DOCKER_REPO/frontend:latest ./frontend
+
+# #       - name: Push frontend image
+# #         run: docker push $DOCKER_REPO/frontend:latest
+
+# #       # ---------- BACKEND ----------
+# #       - name: Build backend image
+# #         run: docker build -t $DOCKER_REPO/backend:latest ./backend
+
+# #       - name: Push backend image
+# #         run: docker push $DOCKER_REPO/backend:latest
+
+
+
+
+
+
+
+# # name: Build and Push Docker Images
+
+# # on:
+# #   push:
+# #     branches: [main]
+
+# # env:
+# #   DOCKER_REPO: "${{ secrets.DOCKER_USERNAME }}"
+
+# # jobs:
+# #   build-and-push:
+# #     runs-on: ubuntu-latest
+
+# #     steps:
+# #       - uses: actions/checkout@v3
+
+# #       - name: Set up Docker Buildx
+# #         uses: docker/setup-buildx-action@v3
+
+# #       - name: Docker login
+# #         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+# #       - name: Debug environment variables
+# #         run: |
+# #           echo "NEXT_PUBLIC_API_BASE_URL is ${NEXT_PUBLIC_API_BASE_URL:+set}"
+# #           echo "NEXT_PUBLIC_API_BASE_URL_FILES is ${NEXT_PUBLIC_API_BASE_URL_FILES:+set}"
+# #           echo "NEXT_PUBLIC_SITE_URL is ${NEXT_PUBLIC_SITE_URL:+set}"
+# #         env:
+# #           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }}
+# #           NEXT_PUBLIC_API_BASE_URL_FILES: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }}
+# #           NEXT_PUBLIC_SITE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }}
+# #       # FRONTEND
+# #       - name: Build & push frontend
+# #         run: |
+# #           docker buildx build \
+# #             --platform linux/amd64 \
+# #             --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }} \
+# #             --build-arg NEXT_PUBLIC_API_BASE_URL_FILES=${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }} \
+# #             --build-arg NEXT_PUBLIC_SITE_URL=${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }} \
+# #             -t $DOCKER_REPO/frontend:latest \
+# #             --push ./frontend
+
+# #       # BACKEND
+# #       - name: Build & push backend
+# #         run: |
+# #           docker buildx build \
+# #             --platform linux/amd64 \
+# #             -t $DOCKER_REPO/backend:latest \
+# #             --push ./backend
+
+
+
+
+
+
+# # name: CI/CD Pipeline for Production
+
+# # on:
+# #   push:
+# #     branches:
+# #       - main
+
+# # jobs:
+# #   build-and-push-images:
+# #     runs-on: ubuntu-latest
+
+# #     env:
+# #       DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+# #       NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+# #       NEXT_PUBLIC_API_BASE_URL_FILES: ${{ secrets.NEXT_PUBLIC_API_BASE_URL_FILES }}
+# #       NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+
+# #     steps:
+# #       - name: Checkout code
+# #         uses: actions/checkout@v3
+
+# #       - name: Set up Docker Buildx
+# #         uses: docker/setup-buildx-action@v3
+
+# #       - name: Log in to Docker Hub
+# #         uses: docker/login-action@v3
+# #         with:
+# #           username: ${{ secrets.DOCKER_USERNAME }}
+# #           password: ${{ secrets.DOCKER_PASSWORD }}
+
+# #       - name: Build and push backend image
+# #         working-directory: backend
+# #         run: |
+# #           docker buildx build \
+# #             --platform linux/amd64 \
+# #             -t $DOCKER_REPO/backend:latest \
+# #             --push .
+
+# #       - name: Build and push frontend image
+# #         working-directory: frontend
+# #         run: |
+# #           docker buildx build \
+# #             --platform linux/amd64 \
+# #             --build-arg NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL \
+# #             --build-arg NEXT_PUBLIC_API_BASE_URL_FILES=$NEXT_PUBLIC_API_BASE_URL_FILES \
+# #             --build-arg NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL \
+# #             -t $DOCKER_REPO/frontend:latest \
+# #             --push .
+
+
+
+
+
+
+
+
+
+
+
+# # ==========================================================
+
+
+
+
+
+# # name: CI/CD Pipeline
+
+# # on:
+# #   push:
+# #     branches:
+# #       - main
+
+# # jobs:
+# #   build-and-push:
+# #     runs-on: ubuntu-latest
+
+# #     env:
+# #       DOCKER_REPO: ${{ secrets.DOCKER_USERNAME }}
+
+# #     steps:
+# #       - name: Checkout code
+# #         uses: actions/checkout@v2
+
+# #       - name: Set up Docker Buildx
+# #         uses: docker/setup-buildx-action@v3
+
+# #       - name: Login to Docker Hub
+# #         uses: docker/login-action@v3
+# #         with:
+# #           username: ${{ secrets.DOCKER_USERNAME }}
+# #           password: ${{ secrets.DOCKER_PASSWORD }}
+
+# #       - name: Build and push backend image
+# #         working-directory: backend
+# #         run: |
+# #           docker buildx build \
+# #             --platform linux/amd64 \
+# #             -t $DOCKER_REPO/backend:latest \
+# #             --push .
+
+# #       - name: 🔍 Debug Force print full secrets (TEMPORARY ONLY)
+# #         run: |
+# #           echo "API_URL=$(echo $NEXT_PUBLIC_API_BASE_URL | sed 's/./& /g')"
+# #           echo "FILES_URL=$(echo $NEXT_PUBLIC_API_BASE_URL_FILES | sed 's/./& /g')"
+# #           echo "SITE_URL=$(echo $NEXT_PUBLIC_SITE_URL | sed 's/./& /g')"
+# #         env:
+# #           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }}
+# #           NEXT_PUBLIC_API_BASE_URL_FILES: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }}
+# #           NEXT_PUBLIC_SITE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }}
+
+# #       - name: Build and push frontend image
+# #         working-directory: frontend
+# #         run: |
+# #           docker buildx build \
+# #             --platform linux/amd64 \
+# #             --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }} \
+# #             --build-arg NEXT_PUBLIC_API_BASE_URL_FILES=${{ secrets.NEXT_PUBLIC_API_BASE_URL_FILES }} \
+# #             --build-arg NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }} \
+# #             -t $DOCKER_REPO/frontend:latest \
+# #             --push .
+
+
+
+
+
+
+
+
+
+# # ====================================================================
+
+
+
+
+
+# # name: CI/CD Pipeline
+
+# # on:
+# #   push:
+# #     branches:
+# #       - main
+
+# # jobs:
+# #   build-deploy:
+# #     runs-on: ubuntu-latest
+
+# #     env:
+# #       DOCKER_REPO: ${{ secrets.DOCKER_USERNAME }}
+
+# #     steps:
+# #       - name: Checkout code
+# #         uses: actions/checkout@v3
+
+# #       - name: Set up Docker Buildx
+# #         uses: docker/setup-buildx-action@v3
+
+# #       - name: Login to Docker Hub
+# #         uses: docker/login-action@v3
+# #         with:
+# #           username: ${{ secrets.DOCKER_USERNAME }}
+# #           password: ${{ secrets.DOCKER_PASSWORD }}
+
+# #       - name: Build and push backend image
+# #         working-directory: backend
+# #         run: |
+# #           docker buildx build \
+# #             --platform linux/amd64 \
+# #             -t $DOCKER_REPO/backend:latest \
+# #             --push .
+# #       - name: 🔍 Debug Force print full secrets (TEMPORARY ONLY)
+# #         run: |
+# #           echo "API_URL=$(echo $NEXT_PUBLIC_API_BASE_URL | sed 's/./& /g')"
+# #           echo "FILES_URL=$(echo $NEXT_PUBLIC_API_BASE_URL_FILES | sed 's/./& /g')"
+# #           echo "SITE_URL=$(echo $NEXT_PUBLIC_SITE_URL | sed 's/./& /g')"
+# #         env:
+# #           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }}
+# #           NEXT_PUBLIC_API_BASE_URL_FILES: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }}
+# #           NEXT_PUBLIC_SITE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }}
+
+
+
+# #       - name: Build and push frontend image
+# #         working-directory: frontend
+# #         run: |
+# #           docker buildx build \
+# #             --platform linux/amd64 \
+# #             --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }} \
+# #             --build-arg NEXT_PUBLIC_API_BASE_URL_FILES=${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }} \
+# #             --build-arg NEXT_PUBLIC_SITE_URL=${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }} \
+# #             -t $DOCKER_REPO/frontend:latest \
+# #             --push .
+
+#       # # ---------- KUBERNETES DEPLOYMENT BELOW ----------
+
+#       # - name: Set up Kubeconfig
+#       #   run: |
+#       #     mkdir -p $HOME/.kube
+#       #     echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+#       #     chmod 600 $HOME/.kube/config
+
+#       # - name: Create backend Kubernetes Secret manifest
+#       #   run: |
+#       #     cat <<EOF > k8s/backend-secret.yaml
+#       #     apiVersion: v1
+#       #     kind: Secret
+#       #     metadata:
+#       #       name: backend-secret
+#       #     type: Opaque
+#       #     stringData:
+#       #       MONGO_URI: "${{ secrets.MONGO_URI }}"
+#       #       SESSION_SECRET: "${{ secrets.SESSION_SECRET }}"
+#       #       JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+#       #       JWT_EXPIRES_IN: "${{ secrets.JWT_EXPIRES_IN }}"
+#       #       JWT_COOKIE_EXPIRES_IN: "${{ secrets.JWT_COOKIE_EXPIRES_IN }}"
+#       #       AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+#       #       AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+#       #       AWS_REGION: "${{ secrets.AWS_REGION }}"
+#       #       AWS_BUCKET_NAME: "${{ secrets.AWS_BUCKET_NAME }}"
+#       #     EOF
+
+#       # - name: Deploy to Kubernetes
+#       #   run: |
+#       #     kubectl apply -f k8s/
+
+
+
+# # combined------------------------------------
+
+
+
+
+
+
+# name: CI/CD Pipeline
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   build-and-push:
+#     runs-on: ubuntu-latest
+
+#     env:
+#       DOCKER_REPO: ${{ secrets.DOCKER_USERNAME }}
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
+
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v3
+
+#       - name: Login to Docker Hub
+#         uses: docker/login-action@v3
+#         with:
+#           username: ${{ secrets.DOCKER_USERNAME }}
+#           password: ${{ secrets.DOCKER_PASSWORD }}
+
+#       - name: Build and push backend image
+#         working-directory: backend
+#         run: |
+#           docker buildx build \
+#             --platform linux/amd64 \
+#             -t $DOCKER_REPO/backend:latest \
+#             --push .
+
+#       - name: 🔍 Debug Force print full secrets (TEMPORARY ONLY)
+#         run: |
+#           echo "API_URL=$(echo $NEXT_PUBLIC_API_BASE_URL | sed 's/./& /g')"
+#           echo "FILES_URL=$(echo $NEXT_PUBLIC_API_BASE_URL_FILES | sed 's/./& /g')"
+#           echo "SITE_URL=$(echo $NEXT_PUBLIC_SITE_URL | sed 's/./& /g')"
+#         env:
+#           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }}
+#           NEXT_PUBLIC_API_BASE_URL_FILES: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }}
+#           NEXT_PUBLIC_SITE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }}
+
+#       - name: Build and push frontend image
+#         working-directory: frontend
+#         run: |
+#           docker buildx build \
+#             --platform linux/amd64 \
+#             --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }} \
+#             --build-arg NEXT_PUBLIC_API_BASE_URL_FILES=${{ secrets.NEXT_PUBLIC_API_BASE_URL_FILES }} \
+#             --build-arg NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }} \
+#             -t $DOCKER_REPO/frontend:latest \
+#             --push .
+
+#       # # ---------- KUBERNETES DEPLOYMENT BELOW ----------
+
+#       # - name: Set up Kubeconfig
+#       #   run: |
+#       #     mkdir -p $HOME/.kube
+#       #     echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+#       #     chmod 600 $HOME/.kube/config
+
+#       # - name: Create backend Kubernetes Secret manifest
+#       #   run: |
+#       #     cat <<EOF > k8s/backend-secret.yaml
+#       #     apiVersion: v1
+#       #     kind: Secret
+#       #     metadata:
+#       #       name: backend-secret
+#       #     type: Opaque
+#       #     stringData:
+#       #       MONGO_URI: "${{ secrets.MONGO_URI }}"
+#       #       SESSION_SECRET: "${{ secrets.SESSION_SECRET }}"
+#       #       JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+#       #       JWT_EXPIRES_IN: "${{ secrets.JWT_EXPIRES_IN }}"
+#       #       JWT_COOKIE_EXPIRES_IN: "${{ secrets.JWT_COOKIE_EXPIRES_IN }}"
+#       #       AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+#       #       AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+#       #       AWS_REGION: "${{ secrets.AWS_REGION }}"
+#       #       AWS_BUCKET_NAME: "${{ secrets.AWS_BUCKET_NAME }}"
+#       #     EOF
+
+#       # - name: Deploy to Kubernetes
+#       #   run: |
+#       #     kubectl apply -f k8s/
+
+
+# # ---------- KUBERNETES DEPLOYMENT BELOW ----------
+
+#       # - name: Install kubectl
+#       #   run: |
+#       #     sudo apt-get update && sudo apt-get install -y curl
+#       #     curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+#       #     chmod +x kubectl
+#       #     sudo mv kubectl /usr/local/bin/kubectl
+
+#       - name: Install kubectl
+#         run: |
+#           sudo apt-get update && sudo apt-get install -y curl
+#           curl -LO "https://dl.k8s.io/release/v1.32.6/bin/linux/amd64/kubectl"
+#           chmod +x kubectl
+#           sudo mv kubectl /usr/local/bin/kubectl
+
+
+#       # - name: Set up Kubeconfig
+#       #   run: |
+#       #     mkdir -p $HOME/.kube
+#       #     echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+#       #     chmod 600 $HOME/.kube/config
+
+#       - name: Set up Kubeconfig
+#         run: |
+#           mkdir -p $HOME/.kube
+#           echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+#           chmod 600 $HOME/.kube/config
+
+
+#       - name: Create backend Kubernetes Secret manifest
+#         run: |
+#           cat <<EOF > k8s/backend-secret.yaml
+#           apiVersion: v1
+#           kind: Secret
+#           metadata:
+#             name: backend-secret
+#           type: Opaque
+#           stringData:
+#             MONGO_URI: "${{ secrets.MONGO_URI }}"
+#             SESSION_SECRET: "${{ secrets.SESSION_SECRET }}"
+#             JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+#             JWT_EXPIRES_IN: "${{ secrets.JWT_EXPIRES_IN }}"
+#             JWT_COOKIE_EXPIRES_IN: "${{ secrets.JWT_COOKIE_EXPIRES_IN }}"
+#             AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+#             AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+#             AWS_REGION: "${{ secrets.AWS_REGION }}"
+#             AWS_BUCKET_NAME: "${{ secrets.AWS_BUCKET_NAME }}"
+#             PORT: "${{ secrets.PORT }}"
+#           EOF
+
+#       - name: Deploy to Kubernetes
+#         run: |
+#           kubectl apply -f k8s/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# name: CI/CD Pipeline
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   build-and-push:
+#     runs-on: ubuntu-latest
+
+#     env:
+#       DOCKER_REPO: ${{ secrets.DOCKER_USERNAME }}
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
+
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v3
+
+#       - name: Login to Docker Hub
+#         uses: docker/login-action@v3
+#         with:
+#           username: ${{ secrets.DOCKER_USERNAME }}
+#           password: ${{ secrets.DOCKER_PASSWORD }}
+
+#       - name: Set image tags
+#         run: |
+#           echo "BACKEND_TAG=backend-$(date +%s)" >> $GITHUB_ENV
+#           echo "FRONTEND_TAG=frontend-$(date +%s)" >> $GITHUB_ENV
+
+#       - name: Build and push backend image
+#         working-directory: backend
+#         run: |
+#           docker buildx build \
+#             --platform linux/amd64 \
+#             --no-cache \
+#             -t $DOCKER_REPO/backend:latest \
+#             -t $DOCKER_REPO/backend:${{ env.BACKEND_TAG }} \
+#             --push .
+
+#       - name: 🔍 Debug Force print full secrets (TEMPORARY ONLY)
+#         run: |
+#           echo "API_URL=$(echo $NEXT_PUBLIC_API_BASE_URL | sed 's/./& /g')"
+#           echo "FILES_URL=$(echo $NEXT_PUBLIC_API_BASE_URL_FILES | sed 's/./& /g')"
+#           echo "SITE_URL=$(echo $NEXT_PUBLIC_SITE_URL | sed 's/./& /g')"
+#         env:
+#           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }}
+#           NEXT_PUBLIC_API_BASE_URL_FILES: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }}
+#           NEXT_PUBLIC_SITE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }}
+
+#       - name: Build and push frontend image
+#         working-directory: frontend
+#         run: |
+#           docker buildx build \
+#             --platform linux/amd64 \
+#             --no-cache \
+#             --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }} \
+#             --build-arg NEXT_PUBLIC_API_BASE_URL_FILES=${{ secrets.NEXT_PUBLIC_API_BASE_URL_FILES }} \
+#             --build-arg NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }} \
+#             -t $DOCKER_REPO/frontend:latest \
+#             -t $DOCKER_REPO/frontend:${{ env.FRONTEND_TAG }} \
+#             --push .
+
+#       # # ---------- KUBERNETES DEPLOYMENT BELOW ----------
+
+#       # - name: Set up Kubeconfig
+#       #   run: |
+#       #     mkdir -p $HOME/.kube
+#       #     echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+#       #     chmod 600 $HOME/.kube/config
+
+#       # - name: Create backend Kubernetes Secret manifest
+#       #   run: |
+#       #     cat <<EOF > k8s/backend-secret.yaml
+#       #     apiVersion: v1
+#       #     kind: Secret
+#       #     metadata:
+#       #       name: backend-secret
+#       #     type: Opaque
+#       #     stringData:
+#       #       MONGO_URI: "${{ secrets.MONGO_URI }}"
+#       #       SESSION_SECRET: "${{ secrets.SESSION_SECRET }}"
+#       #       JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+#       #       JWT_EXPIRES_IN: "${{ secrets.JWT_EXPIRES_IN }}"
+#       #       JWT_COOKIE_EXPIRES_IN: "${{ secrets.JWT_COOKIE_EXPIRES_IN }}"
+#       #       AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+#       #       AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+#       #       AWS_REGION: "${{ secrets.AWS_REGION }}"
+#       #       AWS_BUCKET_NAME: "${{ secrets.AWS_BUCKET_NAME }}"
+#       #       PORT: "${{ secrets.PORT }}"
+#       #     EOF
+
+#       - name: Create backend Kubernetes Secret manifest
+#         run: |
+#           cat <<EOF > k8s/backend-secret.yaml
+#           apiVersion: v1
+#           kind: Secret
+#           metadata:
+#             name: backend-secret
+#           type: Opaque
+#           stringData:
+#             MONGO_URI: "${{ secrets.MONGO_URI }}"
+#             SESSION_SECRET: "${{ secrets.SESSION_SECRET }}"
+#             JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+#             JWT_EXPIRES_IN: "${{ secrets.JWT_EXPIRES_IN }}"
+#             JWT_COOKIE_EXPIRES_IN: "${{ secrets.JWT_COOKIE_EXPIRES_IN }}"
+#             AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+#             AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+#             AWS_REGION: "${{ secrets.AWS_REGION }}"
+#             AWS_BUCKET_NAME: "${{ secrets.AWS_BUCKET_NAME }}"
+#             PORT: "${{ secrets.PORT }}"
+#           EOF
+
+#       - name: Install kubectl
+#         run: |
+#           sudo apt-get update && sudo apt-get install -y curl
+#           curl -LO "https://dl.k8s.io/release/v1.32.6/bin/linux/amd64/kubectl"
+#           chmod +x kubectl
+#           sudo mv kubectl /usr/local/bin/kubectl
+
+#       - name: Set up Kubeconfig
+#         run: |
+#           mkdir -p $HOME/.kube
+#           echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+#           chmod 600 $HOME/.kube/config
+
+#       - name: Deploy to Kubernetes
+#         run: |
+#           kubectl apply -f k8s/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    env:
+      DOCKER_REPO: ${{ secrets.DOCKER_USERNAME }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set image tags
+        run: |
+          echo "BACKEND_TAG=backend-$(date +%s)" >> $GITHUB_ENV
+          echo "FRONTEND_TAG=frontend-$(date +%s)" >> $GITHUB_ENV
+
+      - name: Build and push backend image
+        working-directory: backend
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            --no-cache \
+            -t $DOCKER_REPO/backend:latest \
+            -t $DOCKER_REPO/backend:${{ env.BACKEND_TAG }} \
+            --push .
+
+      - name: 🔍 Debug Force print full secrets (TEMPORARY ONLY)
+        run: |
+          echo "API_URL=$(echo $NEXT_PUBLIC_API_BASE_URL | sed 's/./& /g')"
+          echo "FILES_URL=$(echo $NEXT_PUBLIC_API_BASE_URL_FILES | sed 's/./& /g')"
+          echo "SITE_URL=$(echo $NEXT_PUBLIC_SITE_URL | sed 's/./& /g')"
+        env:
+          NEXT_PUBLIC_API_BASE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }}
+          NEXT_PUBLIC_API_BASE_URL_FILES: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_FILES_PUBLIC_DOMAIN: ${{ secrets.NEXT_PUBLIC_FILES_PUBLIC_DOMAIN }}
+
+      - name: Build and push frontend image
+        working-directory: frontend
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            --no-cache \
+            --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }} \
+            --build-arg NEXT_PUBLIC_API_BASE_URL_FILES=${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }} \
+            --build-arg NEXT_PUBLIC_SITE_URL=${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }} \
+            --build-arg NEXT_PUBLIC_FILES_PUBLIC_DOMAIN=${{ secrets.NEXT_PUBLIC_FILES_PUBLIC_DOMAIN }} \
+            -t $DOCKER_REPO/frontend:latest \
+            -t $DOCKER_REPO/frontend:${{ env.FRONTEND_TAG }} \
+            --push .
+      # - name: Build and push frontend image
+      #   working-directory: frontend
+      #   run: |
+      #     docker buildx build \
+      #       --platform linux/amd64 \
+      #       --no-cache \
+      #       --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }} \
+      #       --build-arg NEXT_PUBLIC_API_BASE_URL_FILES=${{ secrets.NEXT_PUBLIC_API_BASE_URL_FILES }} \
+      #       --build-arg NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }} \
+      #       -t $DOCKER_REPO/frontend:latest \
+      #       -t $DOCKER_REPO/frontend:${{ env.FRONTEND_TAG }} \
+      #       --push .
+
+      - name: Create backend Kubernetes Secret manifest
+        run: |
+          cat <<EOF > k8s/backend-secret.yaml
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: backend-secret
+          type: Opaque
+          stringData:
+            MONGO_URI: "${{ secrets.MONGO_URI }}"
+            SESSION_SECRET: "${{ secrets.SESSION_SECRET }}"
+            JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+            JWT_EXPIRES_IN: "${{ secrets.JWT_EXPIRES_IN }}"
+            JWT_COOKIE_EXPIRES_IN: "${{ secrets.JWT_COOKIE_EXPIRES_IN }}"
+            AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+            AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+            AWS_REGION: "${{ secrets.AWS_REGION }}"
+            AWS_BUCKET_NAME: "${{ secrets.AWS_BUCKET_NAME }}"
+            R2_ACCESS_KEY_ID: "${{ secrets.R2_ACCESS_KEY_ID }}"
+            R2_SECRET_ACCESS_KEY: "${{ secrets.R2_SECRET_ACCESS_KEY }}"
+            R2_ENDPOINT: "${{ secrets.R2_ENDPOINT }}"
+            R2_BUCKET_NAME: "${{ secrets.R2_BUCKET_NAME }}"
+            PORT: "${{ secrets.PORT }}"
+          EOF
+
+      - name: Install kubectl
+        run: |
+          sudo apt-get update && sudo apt-get install -y curl gettext
+          curl -LO "https://dl.k8s.io/release/v1.32.6/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/kubectl
+
+      - name: Set up Kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG_DEDICATED_ISKOLELK_SERVER }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Create Docker registry secret
+        run: |
+          kubectl create secret docker-registry docker-registry-secret \
+            --docker-server=docker.io \
+            --docker-username=${{ secrets.DOCKER_USERNAME }} \
+            --docker-password=${{ secrets.DOCKER_PASSWORD }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Inject image tags and deploy to Kubernetes
+        run: |
+          export BACKEND_TAG=${{ env.BACKEND_TAG }}
+          export FRONTEND_TAG=${{ env.FRONTEND_TAG }}
+          
+          # Validate that tags are set
+          if [ -z "$BACKEND_TAG" ] || [ -z "$FRONTEND_TAG" ]; then
+            echo "Error: BACKEND_TAG or FRONTEND_TAG is not set"
+            exit 1
+          fi
+          
+          # Generate deployment files
+          envsubst < k8s/backend-deployment.tpl.yaml > k8s/backend-deployment.yaml
+          envsubst < k8s/frontend-deployment.tpl.yaml > k8s/frontend-deployment.yaml
+          
+          # Verify substitution worked (check for unsubstituted variables)
+          if grep -q '\${' k8s/backend-deployment.yaml || grep -q '\${' k8s/frontend-deployment.yaml; then
+            echo "Error: Variable substitution failed. Unsubstituted variables found in deployment files."
+            exit 1
+          fi
+          
+          # Verify image tags are present in generated files
+          if ! grep -q "image: iskolelk/backend:$BACKEND_TAG" k8s/backend-deployment.yaml; then
+            echo "Error: Backend image tag not found in generated deployment file"
+            exit 1
+          fi
+          
+          if ! grep -q "image: iskolelk/frontend:$FRONTEND_TAG" k8s/frontend-deployment.yaml; then
+            echo "Error: Frontend image tag not found in generated deployment file"
+            exit 1
+          fi
+          
+          echo "Deployment files validated successfully"
+          echo "Backend image: iskolelk/backend:$BACKEND_TAG"
+          echo "Frontend image: iskolelk/frontend:$FRONTEND_TAG"
+          
+          kubectl apply -f k8s/

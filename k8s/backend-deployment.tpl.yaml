@@ -1,0 +1,82 @@
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: backend
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: backend
+#   template:
+#     metadata:
+#       labels:
+#         app: backend
+#     spec:
+#       containers:
+#         - name: backend
+#           image: iskolelk/backend:latest
+#           ports:
+#             - containerPort: 3002
+#           envFrom:
+#             - secretRef:
+#                 name: backend-secret
+#           volumeMounts:
+#             - name: upload-volume
+#               mountPath: /usr/src/app/public/uploads
+#       volumes:
+#         - name: upload-volume
+#           persistentVolumeClaim:
+#             claimName: backend-pvc # TODO: change to the actual volume claim name
+
+
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: iskolelk/backend:${BACKEND_TAG}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3002
+          envFrom:
+            - secretRef:
+                name: backend-secret
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /api/v1/papers
+              port: 3002
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/v1/papers
+              port: 3002
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: upload-volume
+              mountPath: /usr/src/app/public/uploads
+      volumes:
+        - name: upload-volume
+          persistentVolumeClaim:
+            claimName: backend-pvc
