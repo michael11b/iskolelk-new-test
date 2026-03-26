@@ -1415,6 +1415,47 @@ jobs:
           echo "${{ secrets.KUBECONFIG_DEDICATED_ISKOLELK_SERVER }}" | base64 -d > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
+      - name: Bootstrap cluster prerequisites (optional)
+        run: |
+          K8S_AUTO_BOOTSTRAP="${{ secrets.K8S_AUTO_BOOTSTRAP }}"
+          K8S_INGRESS_CLASS="${{ secrets.K8S_INGRESS_CLASS }}"
+          if [ -z "$K8S_AUTO_BOOTSTRAP" ]; then
+            K8S_AUTO_BOOTSTRAP="false"
+          fi
+
+          if [ "$K8S_AUTO_BOOTSTRAP" != "true" ]; then
+            echo "Skipping cluster bootstrap (K8S_AUTO_BOOTSTRAP=$K8S_AUTO_BOOTSTRAP)"
+            exit 0
+          fi
+
+          echo "Bootstrap enabled. Ensuring ingress class '$K8S_INGRESS_CLASS' and cert-manager exist."
+
+          # Install ingress-nginx only when nginx class is requested and missing.
+          if [ "$K8S_INGRESS_CLASS" = "nginx" ] && ! kubectl get ingressclass nginx >/dev/null 2>&1; then
+            echo "Installing ingress-nginx..."
+            kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
+            kubectl rollout status deployment/ingress-nginx-controller -n ingress-nginx --timeout=300s
+          fi
+
+          # Traefik is typically managed by k3s itself.
+          if [ "$K8S_INGRESS_CLASS" = "traefik" ] && ! kubectl get ingressclass traefik >/dev/null 2>&1; then
+            echo "Error: traefik ingress class not found. Install/configure Traefik on cluster first."
+            exit 1
+          fi
+
+          # Install cert-manager CRDs/controllers if missing.
+          if ! kubectl get crd certificates.cert-manager.io >/dev/null 2>&1; then
+            echo "Installing cert-manager..."
+            kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
+            kubectl rollout status deployment/cert-manager -n cert-manager --timeout=300s
+            kubectl rollout status deployment/cert-manager-cainjector -n cert-manager --timeout=300s
+            kubectl rollout status deployment/cert-manager-webhook -n cert-manager --timeout=300s
+          fi
+
+          # Final visibility for debugging.
+          kubectl get ingressclass
+          kubectl get pods -n cert-manager || true
+
       - name: Create GHCR pull secret
         run: |
           kubectl create secret docker-registry ghcr-secret \
@@ -1429,19 +1470,42 @@ jobs:
           export BACKEND_TAG=${{ env.BACKEND_TAG }}
           export FRONTEND_TAG=${{ env.FRONTEND_TAG }}
           export IMAGE_PREFIX="ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
+          export K8S_INGRESS_CLASS="${{ secrets.K8S_INGRESS_CLASS }}"
+          export K8S_CLUSTER_ISSUER="${{ secrets.K8S_CLUSTER_ISSUER }}"
+          export K8S_FRONTEND_HOST="${{ secrets.K8S_FRONTEND_HOST }}"
+          export K8S_API_HOST="${{ secrets.K8S_API_HOST }}"
+          export K8S_TLS_SECRET_NAME="${{ secrets.K8S_TLS_SECRET_NAME }}"
+          export K8S_AUTO_BOOTSTRAP="${{ secrets.K8S_AUTO_BOOTSTRAP }}"
+          if [ -z "$K8S_AUTO_BOOTSTRAP" ]; then
+            export K8S_AUTO_BOOTSTRAP="false"
+          fi
           
           # Validate that tags are set
           if [ -z "$BACKEND_TAG" ] || [ -z "$FRONTEND_TAG" ]; then
             echo "Error: BACKEND_TAG or FRONTEND_TAG is not set"
             exit 1
           fi
+
+          # Validate required Kubernetes deployment variables
+          if [ -z "$K8S_INGRESS_CLASS" ] || [ -z "$K8S_CLUSTER_ISSUER" ] || [ -z "$K8S_FRONTEND_HOST" ] || [ -z "$K8S_API_HOST" ] || [ -z "$K8S_TLS_SECRET_NAME" ]; then
+            echo "Error: One or more required K8S_* secrets are missing"
+            exit 1
+          fi
+
+          # Validate ingress class exists in target cluster
+          if ! kubectl get ingressclass "$K8S_INGRESS_CLASS" >/dev/null 2>&1; then
+            echo "Error: IngressClass '$K8S_INGRESS_CLASS' not found on cluster"
+            kubectl get ingressclass || true
+            exit 1
+          fi
           
           # Generate deployment files
           envsubst < k8s/backend-deployment.tpl.yaml > k8s/backend-deployment.yaml
           envsubst < k8s/frontend-deployment.tpl.yaml > k8s/frontend-deployment.yaml
+          envsubst < k8s/ingress.tpl.yaml > k8s/ingress.yaml
           
           # Verify substitution worked (check for unsubstituted variables)
-          if grep -q '\${' k8s/backend-deployment.yaml || grep -q '\${' k8s/frontend-deployment.yaml; then
+          if grep -q '\${' k8s/backend-deployment.yaml || grep -q '\${' k8s/frontend-deployment.yaml || grep -q '\${' k8s/ingress.yaml; then
             echo "Error: Variable substitution failed. Unsubstituted variables found in deployment files."
             exit 1
           fi

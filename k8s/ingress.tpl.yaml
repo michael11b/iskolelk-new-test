@@ -4,16 +4,16 @@ metadata:
   name: app-ingress
   namespace: default
   annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    cert-manager.io/cluster-issuer: "${K8S_CLUSTER_ISSUER}"
 spec:
-  ingressClassName: traefik
+  ingressClassName: ${K8S_INGRESS_CLASS}
   tls:
     - hosts:
-        - staging.iskolelk.com
-        - api-staging.iskolelk.com
-      secretName: iskolelk-staging-tls
+        - ${K8S_FRONTEND_HOST}
+        - ${K8S_API_HOST}
+      secretName: ${K8S_TLS_SECRET_NAME}
   rules:
-    - host: staging.iskolelk.com
+    - host: ${K8S_FRONTEND_HOST}
       http:
         paths:
           - path: /
@@ -23,7 +23,7 @@ spec:
                 name: frontend-service
                 port:
                   number: 3000
-    - host: api-staging.iskolelk.com
+    - host: ${K8S_API_HOST}
       http:
         paths:
           - path: /
