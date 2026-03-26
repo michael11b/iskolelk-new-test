@@ -230,12 +230,11 @@ metadata:
 spec:
   tls:
     - hosts:
-        - iskolelk.com
-        - www.iskolelk.com
-        - api.iskolelk.com
-      secretName: iskolelk-com-tls
+        - staging.iskolelk.com
+        - api-staging.iskolelk.com
+      secretName: iskolelk-staging-tls
   rules:
-    - host: iskolelk.com
+    - host: staging.iskolelk.com
       http:
         paths:
           - path: /
@@ -245,17 +244,7 @@ spec:
                 name: frontend-service
                 port:
                   number: 3000
-    - host: www.iskolelk.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: frontend-service
-                port:
-                  number: 3000
-    - host: api.iskolelk.com
+    - host: api-staging.iskolelk.com
       http:
         paths:
           - path: /
