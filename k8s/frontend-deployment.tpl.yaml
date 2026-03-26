@@ -45,10 +45,10 @@ spec:
         app: frontend
     spec:
       imagePullSecrets:
-        - name: docker-registry-secret
+        - name: ghcr-secret
       containers:
         - name: frontend
-          image: iskolelk/frontend:${FRONTEND_TAG}
+          image: ${IMAGE_PREFIX}/frontend:${FRONTEND_TAG}
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

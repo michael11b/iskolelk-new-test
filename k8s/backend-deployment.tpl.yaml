@@ -45,9 +45,11 @@ spec:
       labels:
         app: backend
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - name: backend
-          image: iskolelk/backend:${BACKEND_TAG}
+          image: ${IMAGE_PREFIX}/backend:${BACKEND_TAG}
           imagePullPolicy: Always
           ports:
             - containerPort: 3002

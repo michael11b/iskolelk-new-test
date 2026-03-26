@@ -1320,21 +1320,19 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
-    env:
-      DOCKER_REPO: ${{ secrets.DOCKER_USERNAME }}
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Docker Hub
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ghcr.io
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Set image tags
         run: |
@@ -1344,27 +1342,18 @@ jobs:
       - name: Build and push backend image
         working-directory: backend
         run: |
+          IMAGE_PREFIX="ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
           docker buildx build \
             --platform linux/amd64 \
             --no-cache \
-            -t $DOCKER_REPO/backend:latest \
-            -t $DOCKER_REPO/backend:${{ env.BACKEND_TAG }} \
+            -t ${IMAGE_PREFIX}/backend:latest \
+            -t ${IMAGE_PREFIX}/backend:${{ env.BACKEND_TAG }} \
             --push .
-
-      - name: 🔍 Debug Force print full secrets (TEMPORARY ONLY)
-        run: |
-          echo "API_URL=$(echo $NEXT_PUBLIC_API_BASE_URL | sed 's/./& /g')"
-          echo "FILES_URL=$(echo $NEXT_PUBLIC_API_BASE_URL_FILES | sed 's/./& /g')"
-          echo "SITE_URL=$(echo $NEXT_PUBLIC_SITE_URL | sed 's/./& /g')"
-        env:
-          NEXT_PUBLIC_API_BASE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL }}
-          NEXT_PUBLIC_API_BASE_URL_FILES: ${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }}
-          NEXT_PUBLIC_SITE_URL: ${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }}
-          NEXT_PUBLIC_FILES_PUBLIC_DOMAIN: ${{ secrets.NEXT_PUBLIC_FILES_PUBLIC_DOMAIN }}
 
       - name: Build and push frontend image
         working-directory: frontend
         run: |
+          IMAGE_PREFIX="ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
           docker buildx build \
             --platform linux/amd64 \
             --no-cache \
@@ -1372,8 +1361,8 @@ jobs:
             --build-arg NEXT_PUBLIC_API_BASE_URL_FILES=${{ secrets.FRONTEND_NEXT_PUBLIC_API_BASE_URL_FILES }} \
             --build-arg NEXT_PUBLIC_SITE_URL=${{ secrets.FRONTEND_NEXT_PUBLIC_SITE_URL }} \
             --build-arg NEXT_PUBLIC_FILES_PUBLIC_DOMAIN=${{ secrets.NEXT_PUBLIC_FILES_PUBLIC_DOMAIN }} \
-            -t $DOCKER_REPO/frontend:latest \
-            -t $DOCKER_REPO/frontend:${{ env.FRONTEND_TAG }} \
+            -t ${IMAGE_PREFIX}/frontend:latest \
+            -t ${IMAGE_PREFIX}/frontend:${{ env.FRONTEND_TAG }} \
             --push .
       # - name: Build and push frontend image
       #   working-directory: frontend
@@ -1426,18 +1415,20 @@ jobs:
           echo "${{ secrets.KUBECONFIG_DEDICATED_ISKOLELK_SERVER }}" | base64 -d > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
-      - name: Create Docker registry secret
+      - name: Create GHCR pull secret
         run: |
-          kubectl create secret docker-registry docker-registry-secret \
-            --docker-server=docker.io \
-            --docker-username=${{ secrets.DOCKER_USERNAME }} \
-            --docker-password=${{ secrets.DOCKER_PASSWORD }} \
+          kubectl create secret docker-registry ghcr-secret \
+            --docker-server=ghcr.io \
+            --docker-username=${{ secrets.GHCR_USERNAME }} \
+            --docker-password=${{ secrets.GHCR_TOKEN }} \
+            --docker-email=noreply@github.com \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Inject image tags and deploy to Kubernetes
         run: |
           export BACKEND_TAG=${{ env.BACKEND_TAG }}
           export FRONTEND_TAG=${{ env.FRONTEND_TAG }}
+          export IMAGE_PREFIX="ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
           
           # Validate that tags are set
           if [ -z "$BACKEND_TAG" ] || [ -z "$FRONTEND_TAG" ]; then
@@ -1456,18 +1447,18 @@ jobs:
           fi
           
           # Verify image tags are present in generated files
-          if ! grep -q "image: iskolelk/backend:$BACKEND_TAG" k8s/backend-deployment.yaml; then
+          if ! grep -q "image: ${IMAGE_PREFIX}/backend:${BACKEND_TAG}" k8s/backend-deployment.yaml; then
             echo "Error: Backend image tag not found in generated deployment file"
             exit 1
           fi
           
-          if ! grep -q "image: iskolelk/frontend:$FRONTEND_TAG" k8s/frontend-deployment.yaml; then
+          if ! grep -q "image: ${IMAGE_PREFIX}/frontend:${FRONTEND_TAG}" k8s/frontend-deployment.yaml; then
             echo "Error: Frontend image tag not found in generated deployment file"
             exit 1
           fi
           
           echo "Deployment files validated successfully"
-          echo "Backend image: iskolelk/backend:$BACKEND_TAG"
-          echo "Frontend image: iskolelk/frontend:$FRONTEND_TAG"
+          echo "Backend image: ${IMAGE_PREFIX}/backend:${BACKEND_TAG}"
+          echo "Frontend image: ${IMAGE_PREFIX}/frontend:${FRONTEND_TAG}"
           
           kubectl apply -f k8s/
