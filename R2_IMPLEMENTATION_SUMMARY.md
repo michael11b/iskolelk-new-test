@@ -1,4 +1,4 @@
-# Cloudflare R2 Implementation Summary
+# Cloudflare R2 Implementation Summary.
 
 This document summarizes all the changes made to add Cloudflare R2 support to the Iskole.lk application.
 
