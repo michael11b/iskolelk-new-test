@@ -1525,4 +1525,12 @@ jobs:
           echo "Backend image: ${IMAGE_PREFIX}/backend:${BACKEND_TAG}"
           echo "Frontend image: ${IMAGE_PREFIX}/frontend:${FRONTEND_TAG}"
           
-          kubectl apply -f k8s/
+          # Apply explicit manifests only (never apply *.tpl.yaml files).
+          kubectl apply -f k8s/persistent-volume.yaml
+          kubectl apply -f k8s/backend-secret.yaml
+          kubectl apply -f k8s/backend-service.yaml
+          kubectl apply -f k8s/frontend-configmap.yaml
+          kubectl apply -f k8s/frontend-service.yaml
+          kubectl apply -f k8s/backend-deployment.yaml
+          kubectl apply -f k8s/frontend-deployment.yaml
+          kubectl apply -f k8s/ingress.yaml
