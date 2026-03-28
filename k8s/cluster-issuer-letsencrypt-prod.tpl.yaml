@@ -1,0 +1,17 @@
+# ClusterIssuer is cluster-scoped: ONE resource for the whole Kubernetes cluster.
+# CI runs: envsubst < this file | kubectl apply -f -
+# Solver ingress class must match K8S_INGRESS_CLASS (e.g. traefik, nginx).
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    email: msiclk.r@gmail.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+      - http01:
+          ingress:
+            class: ${K8S_INGRESS_CLASS}

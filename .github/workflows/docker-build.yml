@@ -1498,6 +1498,13 @@ jobs:
             kubectl get ingressclass || true
             exit 1
           fi
+
+          # ClusterIssuer is cluster-scoped (shared by all namespaces). Requires cert-manager.
+          if ! kubectl get crd clusterissuers.cert-manager.io >/dev/null 2>&1; then
+            echo "Error: cert-manager CRD clusterissuers.cert-manager.io not found. Install cert-manager or set K8S_AUTO_BOOTSTRAP=true."
+            exit 1
+          fi
+          envsubst < k8s/cluster-issuer-letsencrypt-prod.tpl.yaml | kubectl apply -f -
           
           # Generate deployment files
           envsubst < k8s/backend-deployment.tpl.yaml > k8s/backend-deployment.yaml

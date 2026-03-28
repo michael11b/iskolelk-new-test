@@ -2,8 +2,11 @@
 # All apps (all namespaces) can reference it in Ingress:
 #   cert-manager.io/cluster-issuer: "letsencrypt-prod"
 #
-# Apply once on the server (not per-app deploy):
+# CI/CD applies cluster-issuer-letsencrypt-prod.tpl.yaml via envsubst (see .github/workflows).
+# Manual apply (example, Traefik / k3s):
 #   kubectl apply -f k8s/cluster-issuer-letsencrypt-prod.yaml
+#
+# For nginx, edit `ingress.class` below to `nginx` before applying.
 #
 # ACME email: used by Let's Encrypt for expiry / problem notices (not shown on the cert).
 apiVersion: cert-manager.io/v1
