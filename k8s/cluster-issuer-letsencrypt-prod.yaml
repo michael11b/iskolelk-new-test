@@ -1,0 +1,22 @@
+# ClusterIssuer is cluster-scoped: ONE resource for the whole Kubernetes cluster.
+# All apps (all namespaces) can reference it in Ingress:
+#   cert-manager.io/cluster-issuer: "letsencrypt-prod"
+#
+# Apply once on the server (not per-app deploy):
+#   kubectl apply -f k8s/cluster-issuer-letsencrypt-prod.yaml
+#
+# ACME email: used by Let's Encrypt for expiry / problem notices (not shown on the cert).
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    email: msiclk.r@gmail.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+      - http01:
+          ingress:
+            class: traefik
